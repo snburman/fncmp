@@ -1,0 +1,16 @@
+---
+sidebar_position: 2
+title: "Static files"
+---
+
+You can use any web server you like, however the examples will be using [http.ServeMux](https://pkg.go.dev/net/http#ServeMux) from the standard library.
+
+Here, we're serving the static directory that we created earlier.
+```go title="main.go"
+func main() {
+	mux := http.NewServeMux()
+	// This serves html and js files
+	mux.Handle("/", http.FileServer(http.Dir("static")))
+	log.Fatal(http.ListenAndServe(":8080", mux))
+}
+```

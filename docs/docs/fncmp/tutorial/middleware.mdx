@@ -1,0 +1,51 @@
+---
+sidebar_position: 3
+title: "Middleware"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+FnComponents are rendered by directing http requests through a special middleware function.
+```go
+func MiddleWareFn(http.HandlerFunc, fncmp.HandleFn) http.HandlerFunc
+```
+
+It's a bit of a mouth full, so let's break it down.
+
+### http.HandlerFunc
+This is the standard [http.HandlerFunc](https://pkg.go.dev/net/http#HandlerFunc) that you would use in a normal http server.
+This is the HandlerFunc that we'll use to serve the index file.
+
+<Tabs>
+    <TabItem value={0} label="html">
+        ```go title="func (http.ResponseWriter, *http.Request)"
+        func HandleIndex(w http.ResponseWriter, r *http.Request) {
+            http.ServeFile(w, r, "static/index.html")
+        }
+        ```
+    </TabItem>
+    <TabItem value={1} label="templ">
+        ```go title="main.go"
+        func HandleIndex(w http.ResponseWriter, r *http.Request) {
+            c := Index()
+            c.Render(r.Context(), w)
+        }
+        ```
+    </TabItem>
+</Tabs>
+
+### fncmp.HandleFn
+This is the function that will be used to handle the FnComponents within the scope of the route.
+If you read the [introduction](/docs/fncmp/), you'll remember that we created a button component.
+
+HandleMainFn receives context containing the http request, as well as information that fncmp
+communicates with fncmp.min.js to render the button component. fncmp.NewFn takes this context
+as well as the button component and returns a FnComponent.
+```go title="func (context.Context) fncmp.FnComponent"
+func HandleMainFn(ctx context.Context) fncmp.FnComponent {
+    return fncmp.NewFn(ctx, button)
+}
+```
+:::tip
+See the examples for tips on serving various templates and their components using fncmp.HandleFn
+:::

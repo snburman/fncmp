@@ -1,0 +1,55 @@
+---
+sidebar_position: 4
+title: "Web server"
+---
+import button_img from '../img/server_button.png'
+
+```go {4} title="main.go"
+func main() {
+    mux := http.NewServeMux()
+    mux.Handle("/", http.FileServer(http.Dir("static")))
+    mux.Handle("/main", fncmp.MiddleWareFn(HandleIndex, HandleMainFn))
+    log.Fatal(http.ListenAndServe(":8080", mux))
+}
+```
+By adding fncmp.MiddlewareFn to the '/main' endpoint, we can now serve our index page, as well as the button.
+
+This is the full code:
+```go title="main.go"
+package main
+
+import (
+	"context"
+	"log"
+	"net/http"
+
+	"github.com/kitkitchen/fncmp"
+)
+
+func HandleIndex(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "static/index.html")
+}
+
+func HandleMainFn(ctx context.Context) fncmp.FnComponent {
+    button := fncmp.HTML("<button>Click me</button>")
+    return fncmp.NewFn(ctx, button)
+}
+
+func main() {
+    mux := http.NewServeMux()
+    mux.Handle("/", http.FileServer(http.Dir("static")))
+    mux.Handle("/main", fncmp.MiddleWareFn(HandleIndex, HandleMainFn))
+    log.Fatal(http.ListenAndServe(":8080", mux))
+}
+```
+
+Run the server and go to http://localhost:8080. You should see the button.
+```
+go run main.go
+```
+
+Output:
+<img src={button_img} style={{width: 300}}/>
+
+Now that we can render to the DOM, let's add some interactivity to the button
+and start to build a web app. 

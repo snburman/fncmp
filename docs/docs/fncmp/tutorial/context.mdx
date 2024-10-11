@@ -1,0 +1,139 @@
+---
+sidebar_position: 7
+title: "Context"
+---
+The context passed to a HandleFn contains a [Dispatch](https://pkg.go.dev/github.com/kitkitchen/fncmp#Dispatch) struct
+that contains information needed by the client, initiated by <code>fncmp.min.js</code>, to communicate with the server.
+While the context must remain consistent during a request, values may be stored and retrieved from the context as needed.
+
+One such example is an event triggered by an [EventListener](https://pkg.go.dev/github.com/kitkitchen/fncmp#EventListener).
+
+### Events
+We can see that the EventListener struct contains a context and a HandleFn. The HandleFn being the function that was [passed to
+the WithEvents method](/docs/fncmp/tutorial/event-listeners) of the FnComponent. The context is the same context that is passed to the HandleFn.
+```go title="fncmp.EventListener struct"
+type EventListener struct {
+	context.Context `json:"-"`
+	ID              string   `json:"id"`
+	TargetID        string   `json:"target_id"`
+	Handler         HandleFn `json:"-"`
+	On              OnEvent  `json:"on"`
+	Data            any      `json:"data"`
+}
+```
+
+When an event is triggered in the DOM, the client sends a Dispatch to the server which retrieves the
+EventListener to which the event was assigned. The context is then passed to the HandleFn, which can be used to
+retrieve information about the event. Let's change the project a bit to see how this works.
+
+### Example: <i>Context & EventListener</i>
+
+Start by replacing the <code>div</code> tag with the following unordered list element in <code>index.html</code>.
+```html {3} title="static/index.html"
+<!-- ... -->
+    <main>
+      <ul id="tasks"></ul>
+    </main>
+<!-- ... -->
+```
+
+Update HandleMainFn in <code>main.go</code> to include a form that will be used to add tasks to a to-do list.
+```go {8} title="main.go"
+func HandleMainFn(ctx context.Context) fncmp.FnComponent {
+    form := fncmp.HTML(`
+        <form>
+            <input id='name' name='name' type='text'/>
+            <button type='submit'>Add Task</button>
+        </form>
+    `)
+    fn := fncmp.NewFn(ctx, form).WithEvents(handleSubmit, fncmp.OnSubmit)
+    return fn.AppendTag("main")
+}
+```
+Note that the <i>OnEvent</i> passed to <i>WithEvents</i> has been changed to fncmp.OnSubmit, which is equivalent to, "submit".
+
+The name of the callback function has also been changed to <i>handleSubmit</i>.
+
+Package fncmp provides a utility function for parsing data from EventListeners, but first the shape of that data needs to be defined.
+
+Define a <b>Task</b> struct somewhere in <code>main.go</code>.
+```go title="main.go"
+type Task struct {
+    Name string `json:"name"`
+    Complete bool `json:"complete"`
+}
+```
+
+Now, with a new <i>handleSubmit</i> function, we can use the [fncmp.EventData](https://pkg.go.dev/github.com/kitkitchen/fncmp#EventData) 
+function to parse the data from the context, passing the type of data (Task) as a generic argument.
+```go {2,4} title="main.go"
+func handleSubmit(ctx context.Context) fncmp.FnComponent {
+    task, err := fncmp.EventData[Task](ctx)
+    if err != nil {
+        return fncmp.FnErr(ctx, err)
+    }
+    //...
+}
+```
+Notice that, in the event that the context doesn't contain the expected Task data, we can return a [fncmp.FnErr](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnErr), much like a FnComponent with an error in place of a Component.
+This effectively cancels the Dispatch to the client and no subsequent rendering takes place.
+:::info
+OnSubmit is the only event that should always have a user defined type passed to EventData as OnSubmit returns arbitrary form data.
+Other events, such as [OnMouseEnter](https://pkg.go.dev/github.com/kitkitchen/fncmp#OnEvent), can be parsed using
+[fncmp.MouseEvent](https://pkg.go.dev/github.com/kitkitchen/fncmp#MouseEvent) to retrieve values like the mouse's position.
+:::
+
+Now that we have the task, we can add it to the list of tasks.
+```go {6-8} title="main.go"
+func handleSubmit(ctx context.Context) fncmp.FnComponent {
+    task, err := fncmp.EventData[Task](ctx)
+    if err != nil {
+        return fncmp.FnErr(ctx, err)
+    }
+    item := fncmp.HTML("<li>" + task.Name + "</li>")
+    fn := fncmp.NewFn(ctx, item)
+    return fn.AppendElement("tasks")
+}
+```
+
+Add some css to the head of <code>index.html</code> to style the to-do list.
+```html title="static/index.html"
+<!-- ... -->
+<head>
+    <style>
+        ul {
+            width: 230px;
+            height: 230px;
+            padding: 0;
+            overflow: scroll;
+            list-style-type: none;
+        }
+        li {
+            padding: 10px;
+            margin: 1px;
+            background-color: #f0f0f0;
+        }
+        form {
+            display: flex;
+            width: 230px;
+        }
+        input {
+            flex: 1;
+            height: 25px;
+            margin-right: 5px;
+        }
+        button {
+            border: none;
+            background-color: #0076d0;
+            color: #ffffff;
+        }
+    </style>
+<!-- ... -->
+```
+import add_task_img from '../img/add_task.png';
+
+Output:
+<img src={add_task_img} />
+
+This to-do list isn't very useful yet, but it demonstrates how to use the context to retrieve data from an EventListener.\
+In the next section, we'll use [Cache](https://pkg.go.dev/github.com/kitkitchen/fncmp#Cache) to keep track of tasks and their completion status.
