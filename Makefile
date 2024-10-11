@@ -33,5 +33,5 @@ sass:
 publish:
 	git tag -s v0.3.303 -m "fncmp v0.3.303" && \
 	git push --tags && \
-	GOPROXY=proxy.golang.org go list -m github.com/kitkitchen/fncmp@v0.3.303 && \
-	curl https://sum.golang.org/lookup/github.com/kitkitchen/fncmp@v0.3.303
+	GOPROXY=proxy.golang.org go list -m github.com/snburman/fncmp@v0.3.303 && \
+	curl https://sum.golang.org/lookup/github.com/snburman/fncmp@v0.3.303
