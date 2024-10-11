@@ -1,4 +1,4 @@
-module github.com/kitkitchen/fncmp
+module github.com/snburman/fncmp
 
 go 1.21.5
 

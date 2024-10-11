@@ -1,6 +1,4 @@
 // Package fncmp brings enhanced functionality to the Component interface.
-//
-// See: kitkitchen.github.io/docs/fncmp
 package main
 
 import (
