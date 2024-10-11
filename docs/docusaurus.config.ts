@@ -8,15 +8,15 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://kitkitchen.github.io',
+  url: 'https://snburman.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/fncmp',
   deploymentBranch: 'gh-pages',
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'kitkitchen', // Usually your GitHub org/user name.
-  projectName: 'kitkitchen.github.io', // Usually your repo name.
+  organizationName: 'snburman', // Usually your GitHub org/user name.
+  projectName: 'snburman.github.io', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
