@@ -1,0 +1,134 @@
+---
+sidebar_position: 6
+title: "Rendering"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+This section will cover how rendering is achieved and how we'll use FnComponent's methods to create a to-do list.
+
+## HandleFn
+```go title="fncmp.HandleFn function signature"
+type HandleFn func(context.Context) fncmp.FnComponent
+```
+[fncmp.HandleFn](https://pkg.go.dev/github.com/kitkitchen/fncmp#HandleFn) accepts a context.Context and returns a FnComponent.
+:::warning
+Always pass the context received by a HandleFn to fncmp.NewFn as it contains information needed by the client.
+:::
+
+
+## FnComponent
+```go title="fncmp.NewFn function signature"
+func fncmp.NewFn(context.Context, fncmp.Component) fncmp.FnComponent
+```
+[fncmp.FnComponent](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent) is instantiated with a context.Context and a [fncmp.Component](https://pkg.go.dev/github.com/kitkitchen/fncmp#Component). 
+The context passed to NewFn should be the same context passed to the HandleFn.
+
+Values may be stored and retrieved from the context as it's passed down to the FnComponent's children. 
+A deeper look into the context will be covered in the next section.
+
+```go title="main.go"
+func HandleMain(ctx context.Context) fncmp.FnComponent {
+    button := fncmp.HTML("<button>Click me</button>")
+    // pass the inherited context to the FnComponent
+    return fncmp.NewFn(ctx, button)
+}
+```
+
+## The DOM
+:::info 
+If you aren't familiar with the term DOM, please refer to the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+:::
+
+For this tutorial we'll focus on the index.html file.
+By default, components are rendered to the <code>main</code> tag in the body of the HTML document, replacing it's inner content.
+```html {8} title="static/index.html"
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Project</title>
+    <script src="/static/fncmp.min.js"></script>
+  </head>
+  <body>
+    <main></main>
+  </body>
+</html>
+```
+
+### Selective rendering
+There a eight methods available to FnComponent for rendering to specific elements in the DOM.
+:::info
+The default setting of a FnComponent is to replace the contents of the <code>main</code> tag. This is equivalent to:
+```go
+fncmp.NewFn(ctx, greeting).SwapTagInner("main")
+```
+:::
+<Tabs>
+<TabItem value={0} label="Tag">
+Parameter: <b>tag</b> <i>string</i>
+    <ul style={{justifyContent: 'flex-end'}}>
+        <li>[SwapTagInner](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.SwapTagInner) (default)</li>
+        Swaps the inner HTML of a tag (eg. main) with the HTML rendered by the FnComponent
+        <li>[SwapTagOuter](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.SwapTagOuter)</li>
+        Swaps the outer HTML of a tag with the HTML rendered by the FnComponent
+        <li>[PrependTag](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.PrependTag)</li>
+        Prepends the HTML of a tag with the HTML rendered by the FnComponent
+        <li>[AppendTag](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.AppendTag)</li>
+        Appends the HTML of a tag with the HTML rendered by the FnComponent
+    </ul>
+</TabItem>
+<TabItem value={1} label="Element">
+Parameter: <b>id</b> <i>string</i>
+    <ul style={{justifyContent: 'flex-start'}}>
+        <li>[SwapElementInner](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.SwapElementInner)</li>
+        Swaps the inner HTML of an element by ID with the HTML rendered by the FnComponent
+        <li>[SwapElementOuter](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.SwapElementOuter)</li>
+        Swaps the outer HTML of an element by ID with the HTML rendered by the FnComponent
+        <li>[PrependElement](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.PrependElement)</li>
+        Prepends the HTML of an element by ID with the HTML rendered by the FnComponent
+        <li>[AppendElement](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.AppendElement)</li>
+        Appends the HTML of an element by ID with the HTML rendered by the FnComponent
+    </ul>
+</TabItem>
+</Tabs>
+
+### Example: <i>AppendElement</i>
+For this demonstration, we'll update the index.html file instead of getting into templating and building components.
+```html {8-10} title="static/index.html"
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My Project</title>
+        <script src="/static/fncmp.min.js"></script>
+    </head>
+    <body>
+        <main>
+          <div id="greetings"></div>
+        </main>
+    </body> 
+</html>
+```
+
+Instead of replacing the contents of the <code>main</code> tag, we'll append the HTML to the <code>div</code> with the <b>id</b> <code>greetings</code>.
+```go {4} title="main.go"
+func handleClick(ctx context.Context) fncmp.FnComponent {
+  greeting := fncmp.HTML("<h1>Hello, world!</h1>")
+  fn := fncmp.NewFn(ctx, greeting)
+  return fn.AppendElement("greetings")
+}
+```
+Now, instead of replacing the contents of the <code>main</code> tag, the FnComponent will append to the <code>main</code> tag so that the greeting div is not replaced.
+```go {4} title="main.go"
+func HandleMainFn(ctx context.Context) fncmp.FnComponent {
+  button := fncmp.HTML("<button>Click me</button>")
+  fn := fncmp.NewFn(ctx, button).WithEvents(handleClick, fncmp.OnClick)
+  return fn.AppendTag("main")
+}
+
+```
+Clicking the button will append the greeting to the <code>div</code> with the <b>id</b> <code>greetings</code>.
+
+import append_img from '../img/append_element.png'
+
+Output:
+<img src={append_img} />

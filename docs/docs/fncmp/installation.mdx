@@ -1,0 +1,51 @@
+---
+sidebar_position: 2
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Installation
+
+### 1. Get the fncmp package
+
+```bash
+go get github.com/kitkitchen/fncmp
+```
+
+### 2. Download [fncmp.min.js](https://www.seanburman.com/static/download/fncmp.min.js.zip)
+
+### 3. Create an HTML file (or template)
+Here we've included the fncmp.min.js file in the head of the HTML.
+
+<Tabs>
+    <TabItem value={0} label="HTML">
+        ```html title="static/index.html"
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>My Project</title>
+                <script src="fncmp.min.js"></script>
+            </head>
+            <body>
+                <main></main>
+            </body> 
+        </html>
+        ```
+    </TabItem>
+    <TabItem value={1} label="Template">
+        ```go title="index.templ"
+        templ Index() {
+            <html>
+                <head>
+                    <title>My Project</title>
+                    <script src="fncmp.min.js"></script>
+                </head>
+                <body>
+                    <main></main>
+                </body> 
+            </html>
+        }
+        ```
+    </TabItem>
+</Tabs>

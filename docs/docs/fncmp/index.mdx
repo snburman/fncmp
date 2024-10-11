@@ -1,0 +1,48 @@
+---
+sidebar_position: 1
+title: "Introduction"
+---
+
+### fnComponent
+Package [fncmp](https://pkg.go.dev/github.com/kitkitchen/fncmp) is 
+Kit Kitchen's pilot project aimed to bring granular control to server-side rendering with Go.
+
+### Granular control
+Developers can serve HTML components from a web server using packages such as [templ](https://templ.guide) or with fncmp's [HTML](https://pkg.go.dev/github.com/kitkitchen/fncmp#HTML) struct.
+The [FnComponent](https://github.com/kitkitchen/fncmp/blob/v0.2.1/component.go#L28) struct provides enhanced functionality to these components including when and how they are rendered to the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+
+```go title="convert a component to a FnComponent"
+component := fncmp.HTML("<button>Click me</button>")
+fn := fncmp.NewFn(ctx, component)
+```
+
+If we wanted this component in a specific location in the DOM:
+
+```go
+fn.AppendElement("menu")
+```
+### Event listeners
+The ability to create and respond to [DOM events](https://developer.mozilla.org/en-US/docs/Web/API/Event) is a key feature of fncmp. \
+We can apply a function to be called when the "click" event is triggered on the component.
+
+:::info
+<i>fncmp supplies a set of [OnEvent](https://pkg.go.dev/github.com/kitkitchen/fncmp#OnEvent) constants to be used with the [WithEvents](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.WithEvents) 
+method. Further parsing of events is covered in the reference documentation.</i>
+:::
+
+```go
+component = component.WithEvents(handleClick, fncmp.OnClick)   
+```
+
+In this example, a component 'Greeting' is returned when the "click" event is triggered.
+```go
+func handleClick(ctx context.Context) fncmp.FnComponent {
+    return fncmp.NewFn(ctx, Greeting)
+}
+```
+
+These short examples only hint at what can be done with fncmp. I will provide live examples and plenty of recipes, 
+so please follow along, starting with installation.
+
+
+

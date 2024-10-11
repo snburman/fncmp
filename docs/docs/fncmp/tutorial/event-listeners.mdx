@@ -1,0 +1,44 @@
+---
+sidebar_position: 5
+title: "Event listeners"
+---
+import button_result from '../img/server_button_result.png'
+
+A [fncmp.HandleFn](https://pkg.go.dev/github.com/kitkitchen/fncmp#HandleFn) can also be used as a callback function for an event listener.
+```go title="main.go"
+func handleClick(ctx context.Context) fncmp.FnComponent {
+	///
+}
+```
+
+FnComponent's [WithEvents](https://pkg.go.dev/github.com/kitkitchen/fncmp#FnComponent.WithEvents) method is used to add event listeners to the component.
+```go {3-4} title="main.go"
+func HandleMainFn(ctx context.Context) fncmp.FnComponent {
+    button := fncmp.HTML("<button>Click me</button>")
+    fn := fncmp.NewFn(ctx, button).WithEvents(handleClick, fncmp.OnClick)
+    return fn
+}
+```
+Now, when the button is clicked, the handleClick function will be called.
+
+:::tip
+fncmp supplies a set of [OnEvent](https://pkg.go.dev/github.com/kitkitchen/fncmp#OnEvent) constants (such as fncmp.OnClick)
+to be used with the WithEvents method.
+:::
+
+Return a greeting from the handleClick function. This will begin to demonstrate what is happening in the DOM.
+```go {2-3} title="main.go"
+func handleClick(ctx context.Context) fncmp.FnComponent {
+    greeting := fncmp.HTML("<h1>Hello, world!</h1>")
+    return fncmp.NewFn(ctx, greeting)
+}
+```
+Run the project and go to http://localhost:8080
+```bash
+go run main.go
+```
+
+Now, when you click the button, the greeting will appear.
+
+Output:
+<img src={button_result} />
