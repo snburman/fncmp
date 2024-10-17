@@ -1,5 +1,5 @@
 // Package fncmp brings enhanced functionality to the Component interface.
-package main
+package fncmp
 
 import (
 	"math"
@@ -15,7 +15,7 @@ var logOpts = log.Options{
 	ReportCaller:    true,
 	ReportTimestamp: true,
 	TimeFormat:      time.Kitchen,
-	Prefix:          "package main:",
+	Prefix:          "package fncmp:",
 }
 
 type LogLevel log.Level

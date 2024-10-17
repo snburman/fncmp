@@ -1,4 +1,4 @@
-package main
+package fncmp
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// The Component interface is implemented by types that can be rendered
 type Component interface {
 	Render(ctx context.Context, w io.Writer) error
 }
