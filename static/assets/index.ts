@@ -302,31 +302,23 @@ class API {
                     ev.preventDefault();
                     d.function = Fun.EVENT;
                     d.event = listener;
-                    switch (listener.on) {
-                        case "submit" || "change":
+                        if (["submit", "change"].includes(listener.on)) {
                             d = this.utils.parseFormData(ev, d);
-                            break;
-                        case "pointerdown" || "pointerup" || "pointermove"||  "click" || "contextmenu" || "dblclick" :
+                        } else if (["pointerdown", "pointerup", "pointermove", "click", "contextmenu", "dblclick"].includes(listener.on)) {
                             d.event.data = ParsePointerEvent(ev as PointerEvent);
-                            break;
-                        case "drag" || "dragend" || "dragenter" || "dragexitcapture" || "dragleave" || "dragover" || "dragstart" || "drop":
+                        } else if (["drag", "dragend", "dragenter", "dragexitcapture", "dragleave", "dragover", "dragstart", "drop"].includes(listener.on)) {
                             d.event.data = ParseDragEvent(ev as DragEvent);
-                            break;
-                        case  "mousedown" || "mouseup" || "mousemove":
+                        } else if (["mousedown", "mouseup", "mousemove"].includes(listener.on)) {
                             d.event.data = ParseMouseEvent(ev as MouseEvent);
-                            break;
-                        case "keydown" || "keyup" || "keypress":
+                        } else if (["keydown", "keyup", "keypress"].includes(listener.on)) {
                             d.event.data = ParseKeyboardEvent(ev as KeyboardEvent);
-                            break;
-                        case "input" || "invalid" || "reset" || "search" || "select" || "focus" || "blur" || "copy" || "cut" || "paste":
+                        } else if (["input", "invalid", "reset", "search", "select", "focus", "blur", "copy", "cut", "paste"].includes(listener.on)) {
                             d.event.data = ParseEventTarget(ev.target);
-                            break;
-                        case "touchstart" || "touchend" || "touchmove" || "touchcancel":
+                        } else if (["touchstart", "touchend", "touchmove", "touchcancel"].includes(listener.on)) {
                             d.event.data = ParseTouchEvent(ev as TouchEvent & { layerX: number; layerY: number; pageX: number; pageY: number });
-                            break;
-                        default:
-                            d.event.data = ParseEventTarget(ev.target);       
-                    }
+                        } else {
+                            d.event.data = ParseEventTarget(ev.target);
+                        }
                     this.Dispatch(d);
                 });
             });
