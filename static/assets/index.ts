@@ -121,6 +121,7 @@ class Socket {
         }
 
         this.addr = protocol + "://" + window.location.host + path_parsed + "?fncmp_id=" + this.key;
+        console.log(this.addr);
         this.connect();
     }
 
@@ -630,3 +631,7 @@ type EventTargetProperties = {
 
 let api: API;
 new Socket();
+
+export const testingExports = {
+    Socket
+};
