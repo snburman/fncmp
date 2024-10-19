@@ -52,8 +52,8 @@ type handler struct {
 func newHandler() *handler {
 	handler := handler{
 		id:        uuid.New().String(),
-		in:        make(chan Dispatch, 1028),
-		out:       make(chan FnComponent, 1028),
+		in:        make(chan Dispatch, 256),
+		out:       make(chan FnComponent, 256),
 		handlesFn: make(map[string]HandleFn),
 	}
 	handlers.Set(handler.id, handler)
@@ -222,53 +222,53 @@ func MiddleWareFn(h http.HandlerFunc, hf HandleFn) http.HandlerFunc {
 			writer := Writer{ResponseWriter: w}
 			h(&writer, r)
 			w.Write(writer.buf)
-		} else {
-			newConnection, err := newConn(w, r, handler.id, id)
-			if err != nil {
-				config.Logger.Error(ErrConnectionFailed)
-				config.Logger.Error(err)
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(ErrConnectionFailed))
-				return
-			}
-			newConnection.HandlerID = handler.id
-
-			ctx := context.WithValue(r.Context(), dispatchKey, dispatchDetails{
-				ConnID:    id,
-				Conn:      newConnection,
-				HandlerID: handler.id,
-			})
-			ctx = context.WithValue(ctx, RequestKey, r)
-
-			// Send initial fn to client
-			fn := hf(ctx)
-			fn.dispatch.conn = newConnection
-			fn.dispatch.ConnID = id
-			fn.dispatch.HandlerID = handler.id
-			handler.out <- fn
-
-			pinger := newDispatch(id)
-			pinger.Function = ping
-			pinger.FnPing.Server = true
-			pinger.conn = newConnection
-			pinger.ConnID = id
-			pinger.HandlerID = handler.id
-
-			// Send ping to client
-			go func(d Dispatch) {
-				for {
-					// Check if connection is still open
-					conn, _ := connPool.Get(d.ConnID)
-					if conn != d.conn {
-						// Connection has been replaced
-						break
-					}
-					handler.Ping(d)
-					time.Sleep(5 * time.Second)
-				}
-			}(*pinger)
-
-			newConnection.listen()
+			return
 		}
+		newConnection, err := newConn(w, r, handler.id, id)
+		if err != nil {
+			config.Logger.Error(ErrConnectionFailed)
+			config.Logger.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(ErrConnectionFailed))
+			return
+		}
+		newConnection.HandlerID = handler.id
+
+		ctx := context.WithValue(r.Context(), dispatchKey, dispatchDetails{
+			ConnID:    id,
+			Conn:      newConnection,
+			HandlerID: handler.id,
+		})
+		ctx = context.WithValue(ctx, RequestKey, r)
+
+		// Send initial fn to client
+		fn := hf(ctx)
+		fn.dispatch.conn = newConnection
+		fn.dispatch.ConnID = id
+		fn.dispatch.HandlerID = handler.id
+		handler.out <- fn
+
+		pinger := newDispatch(id)
+		pinger.Function = ping
+		pinger.FnPing.Server = true
+		pinger.conn = newConnection
+		pinger.ConnID = id
+		pinger.HandlerID = handler.id
+
+		// Send ping to client
+		go func(d Dispatch) {
+			for {
+				// Check if connection is still open
+				conn, _ := connPool.Get(d.ConnID)
+				if conn != d.conn {
+					// Connection has been replaced
+					break
+				}
+				handler.Ping(d)
+				time.Sleep(5 * time.Second)
+			}
+		}(*pinger)
+
+		newConnection.listen()
 	}
 }

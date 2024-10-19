@@ -147,7 +147,7 @@ func (c *conn) Publish(msg []byte) {
 	// if msg is not json encodable, return
 	_, err := json.Marshal(msg)
 	if err != nil {
-		config.Logger.Error("error: message not json encodable", "error", err)
+		config.Logger.Error("message not json encodable", "error", err)
 		return
 	}
 	if c == nil {
