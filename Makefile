@@ -5,6 +5,7 @@ make:
 
 test:
 	go test ./... -v
+	cd static/assets && npm install && npm test
 coverage:
 	go test ./... -v -coverprofile=cover.out
 	go tool cover -html=coverage.out
@@ -15,8 +16,8 @@ assets: templ
 	./tailwindcss -i static/assets/stylesheets/tailwind.css -o static/assets/stylesheets/tailwind.min.css --minify
 	sass static/assets/sass:static/assets/stylesheets
 
-minify:
-	./es-build
+bundle:
+	./esbuild static/assets/index.ts --bundle --minify --outfile=static/assets/fncmp.min.js
 
 templ:
 	/Users/seanburman/go/bin/templ generate
