@@ -39,11 +39,7 @@ export class API {
         },
         render: (d: Dispatch) => {
             let elem: Element | null = null;
-            const parsed = new DOMParser().parseFromString(
-                d.render.html,
-                "text/html"
-            ).firstChild as HTMLElement;
-            const html = parsed.getElementsByTagName("body")[0].innerHTML;
+            const html = d.render.html;
 
             if (d.render.tag != "") {
                 elem = document.getElementsByTagName(d.render.tag)[0];
@@ -216,7 +212,6 @@ function ParsePointerEvent(ev: PointerEvent): PointerEventProperties {
         pointerType: ev.pointerType,
         pressure: ev.pressure,
         relatedTarget: ParseEventTarget(ev.relatedTarget),
-
     };
 }
 
@@ -454,20 +449,4 @@ type KeyboardEventProperties = {
     metaKey: boolean;
     repeat: boolean;
     shiftKey: boolean;
-};
-
-type EventProperties = {
-    pointer: PointerEventProperties;
-    drag: DragEventProperties;
-    mouse: MouseEventProperties;
-    keyboard: KeyboardEventProperties;
-};
-
-type EventTargetProperties = {
-    id: string;
-    name: string;
-    tagName: string;
-    innerHTML: string;
-    outerHTML: string;
-    value: string;
 };
