@@ -175,6 +175,20 @@ describe("test websocket functions", () => {
         expect(dispatches[0].event.target_id).toEqual(event.target_id);
     });
 
+    test("test error", async () => {
+        const dispatch = {
+            function: Fun.RENDER,
+            render: {
+                tag: "test",
+                html: "<p>test</p>",
+                inner: true,
+            }
+        };
+        server.send(dispatch);
+        await waitCallback(() => dispatches.length > 0);
+        expect(dispatches[0].error.message).toBeDefined();
+    });
+
     afterAll(() => {
         WS.clean();
     });

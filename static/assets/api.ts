@@ -167,7 +167,7 @@ export class API {
 
     private Error = (d: Dispatch, message: string) => {
         d.function = Fun.ERROR;
-        d.error.message = message;
+        d.error = { message };
         this.Dispatch(d);
     };
 }
